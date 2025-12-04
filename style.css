@@ -5,7 +5,7 @@
     --light-text: #FFFFFF;
     --secondary-text-light: #CCCCCC;
     --secondary-text-dark: #333333;
-    --accent-color: #55FF55; /* Zelená barva pro aktivní režim */
+    --accent-color: #55FF55; 
 }
 
 /* --- Základní styly a reset --- */
@@ -13,13 +13,13 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif; /* Můžeš nahradit konkrétním fontem */
-    transition: background-color 0.5s, color 0.5s;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.4s, color 0.4s; /* Mírně zrychlené */
 }
 
 html, body {
     height: 100%;
-    overflow: hidden; /* Stránka je nerolovací */
+    overflow: hidden;
 }
 
 /* --- Přepínání Tmavý/Světlý režim --- */
@@ -33,23 +33,23 @@ html, body {
     color: var(--dark-text);
 }
 
-.light-mode #design-area .main-title,
-.light-mode #tech-area .main-title {
-    color: var(--secondary-text-light); /* Šedá pro neaktivní v light módu */
-}
-
 .light-mode #name, .light-mode #description,
 .light-mode #hry-area .main-title,
-.light-mode #portfolio-area .main-title {
-    color: var(--dark-text); /* Černá pro aktivní v light módu */
-}
-
+.light-mode #portfolio-area .main-title,
 .light-mode .main-title a,
 .light-mode .sub-text {
-    color: inherit; /* Zajistí, že texty dědí barvu z .main-title */
+    color: var(--dark-text);
 }
 
-/* --- Hlavička a přepínač režimu --- */
+.dark-mode #design-area, .dark-mode #tech-area {
+    color: var(--secondary-text-dark); 
+}
+
+.dark-mode #design-area .interactable, .dark-mode #tech-area .interactable {
+    color: var(--light-text);
+}
+
+/* --- Hlavička a přepínač režimu (beze změny) --- */
 .header-info {
     position: absolute;
     top: 5vh;
@@ -93,9 +93,8 @@ html, body {
     position: relative;
 }
 
-.light-mode #mode-slider {
-    background-color: var(--secondary-text-light);
-}
+.light-mode #mode-slider { background-color: var(--secondary-text-light); }
+.dark-mode #mode-slider { background-color: #333; }
 
 #mode-slider::after {
     content: '';
@@ -108,19 +107,14 @@ html, body {
     transition: transform 0.3s;
 }
 
-.light-mode #mode-slider::after {
-    transform: translateX(20px);
-}
-
-.dark-mode #mode-slider::after {
-    transform: translateX(0);
-}
+.light-mode #mode-slider::after { transform: translateX(20px); }
+.dark-mode #mode-slider::after { transform: translateX(0); }
 
 
-/* --- Autolayout pomocí CSS Grid --- */
+/* --- Autolayout Grid (beze změny) --- */
 .content-grid {
     position: absolute;
-    top: 30%; /* Posuneme to pod jméno */
+    top: 30%;
     left: 5vw;
     right: 5vw;
     bottom: 5vh;
@@ -140,36 +134,38 @@ html, body {
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    padding-bottom: 5vh; /* Pro zarovnání s dolním okrajem */
-    position: relative; /* Pro absolutní pozicování uhýbajících prvků */
+    padding-bottom: 5vh;
+    position: relative;
 }
 
-/* --- Styl textových prvků --- */
+/* --- Styl textových prvků (WILD Transition) --- */
 .main-title {
     font-size: 7vw;
     font-weight: 900;
     line-height: 1;
     margin-bottom: 10px;
     position: relative;
-    /* Důležité pro interakci: potřebujeme, aby se text mohl posouvat */
-    transform: translate(0, 0); 
-    transition: transform 0.1s;
     user-select: none;
+    /* Klíčové pro "hrůzu": ultra rychlý a trhaný přechod */
+    transition: transform 0.05s ease-out, color 0.4s; 
 }
 
 .main-title a {
     text-decoration: none;
     display: inline-block;
     color: inherit;
-    transition: color 0.5s;
+    transition: color 0.4s;
 }
 
+/* Zabrání kliknutí na odkazy v Dark módu */
 .dark-mode .main-title a {
-    cursor: default; /* V Dark módu nelze kliknout */
+    cursor: default; 
+    pointer-events: none; /* Zcela znemožní kliknutí */
 }
 
 .light-mode .main-title a {
-    cursor: pointer; /* V Light módu je odkaz aktivní */
+    cursor: pointer; 
+    pointer-events: auto;
 }
 
 .sub-text {
@@ -178,45 +174,25 @@ html, body {
     margin-left: 0;
 }
 
-/* Styl pro zvýraznění (DESIGN, TECH) - simulace šedé barvy */
-.dark-mode #design-area, .dark-mode #tech-area {
-    /* Speciální úprava barvy pro *DESIGN* a *TECH* v Dark Mode pro simulaci šedé */
-    color: var(--secondary-text-dark); 
-}
-
-.dark-mode #design-area .interactable, .dark-mode #tech-area .interactable {
-    /* Barva interaktívního textu je bílá */
-    color: var(--light-text);
-}
-
-/* Ikona Hry - simulace čtverce s výplní */
+/* Ikona Hry (beze změny) */
 .game-icon {
     width: 3vw;
     height: 3vw;
-    background-color: var(--dark-text); /* V dark módu černá, v light módu černá */
     position: absolute;
     bottom: 0;
     left: 0;
-    clip-path: polygon(0% 0%, 100% 0%, 100% 80%, 80% 80%, 80% 100%, 0% 100%); /* Simulace tvaru */
+    clip-path: polygon(0% 0%, 100% 0%, 100% 80%, 80% 80%, 80% 100%, 0% 100%);
 }
 
-.light-mode .game-icon {
-    background-color: var(--dark-text);
-}
+.light-mode .game-icon { background-color: var(--dark-text); }
+.dark-mode .game-icon { background-color: var(--light-text); }
 
-.dark-mode .game-icon {
-    background-color: var(--light-text);
-}
 
-/* Responsivita pro menší obrazovky (mobil) */
+/* Responsivita pro menší obrazovky (beze změny) */
 @media (max-width: 768px) {
     #name { font-size: 10vw; }
     #description { font-size: 3vw; }
-    .content-grid {
-        top: 20%;
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto auto;
-    }
+    .content-grid { top: 20%; grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; }
     .main-title { font-size: 15vw; margin-bottom: 5px; }
     .sub-text { font-size: 2.5vw; }
     #mode-switcher { top: 2vw; right: 2vw; }
