@@ -176,7 +176,7 @@ html, body {
     bottom: 0;
     left: 0;
     object-fit: contain;
-    transition: none; /* Pro utíkání + otáčení */
+    transition: none; /* Pro utíkání. + otáčení */
     opacity: 0.9;
     transform-origin: center; /* Otočení kolem levého dolního rohu */
 }
