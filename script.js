@@ -1,5 +1,6 @@
 const body = document.body;
 const modeLabel = document.getElementById('mode-label');
+const rybaIcon = document.getElementById('ryba-icon');
 
 const interactiveElements = document.querySelectorAll(
     '#name, #description, .main-title, .sub-text, .game-icon'
@@ -23,31 +24,53 @@ function toggleMode() {
     }
 
     const isNowDark = body.classList.contains('dark-mode');
-
-    // Text přepínače je pořád stejný
     modeLabel.textContent = 'ZÁBAVNÝ REŽIM';
+
+    // Přepnutí obrázku ryby
+    if (rybaIcon) {
+        rybaIcon.src = isNowDark ? 'RYBA-BL.png' : 'RYBA-WH.png';
+    }
 
     if (isNowDark) {
         document.addEventListener('mousemove', moveElements);
+        document.addEventListener('mousemove', followCursor); // Přidáno sledování
         startJitter();
         resetElementsPosition(true);
 
-        // Blokovat odkazy v chaosu
         document.querySelectorAll('.interactable').forEach(a => {
             a.href = "#";
             a.onclick = (e) => e.preventDefault();
         });
     } else {
         document.removeEventListener('mousemove', moveElements);
+        document.removeEventListener('mousemove', followCursor); // Vypne sledování
+        rybaIcon.style.transform = rybaIcon.style.transform.replace(/rotate\([^)]*\)\s?/, '').trim() || 'translate(0,0)'; // Odstraní rotaci
         stopJitter();
         resetElementsPosition(false);
 
-        // Povolit odkazyf
         document.querySelectorAll('.interactable').forEach(a => {
             a.href = a.getAttribute('data-url');
             a.onclick = null;
         });
     }
+}
+
+// Nová funkce: Ryba agresivně sleduje cursor (otáčí se k myši)
+function followCursor(e) {
+    if (!body.classList.contains('dark-mode') || !rybaIcon) return;
+
+    const rect = rybaIcon.getBoundingClientRect();
+    const rybaX = rect.left + rect.width / 2;
+    const rybaY = rect.top + rect.height / 2;
+
+    const dx = e.clientX - rybaX;
+    const dy = e.clientY - rybaY;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90; // +90 protože ryba směřuje nahoru (přizpůsob podle orientace obrázku)
+
+    // Aplikujeme rotaci navíc k existující transformaci (utíkání + jitter)
+    const currentTransform = rybaIcon.style.transform;
+    const newTransform = currentTransform.replace(/rotate\([^)]*\)/, '') + ` rotate(${angle}deg)`;
+    rybaIcon.style.transform = newTransform.trim();
 }
 
 function moveElements(e) {
@@ -87,7 +110,16 @@ function startJitter() {
             const baseY = parseFloat(element.dataset.baseY) || 0;
             const jitterX = (Math.random() - 0.5) * JITTER_MAX * 2;
             const jitterY = (Math.random() - 0.5) * JITTER_MAX * 2;
-            element.style.transform = `translate(${baseX + jitterX}px, ${baseY + jitterY}px)`;
+
+            let transform = `translate(${baseX + jitterX}px, ${baseY + jitterY}px)`;
+
+            // Pro rybu zachová rotaci (pokud existuje)
+            if (element.id === 'ryba-icon') {
+                const currentRotate = element.style.transform.match(/rotate\([^)]*\)/);
+                if (currentRotate) transform += ' ' + currentRotate[0];
+            }
+
+            element.style.transform = transform;
         });
     }, 100);
 }
@@ -109,15 +141,20 @@ function resetElementsPosition(initialize) {
     });
 }
 
-// Zapnout chaos hned při načtení (výchozí je dark-mode)
+// Inicializace při načtení
 document.addEventListener('DOMContentLoaded', () => {
+    // Nastartujeme chaos (tmavý režim)
     document.addEventListener('mousemove', moveElements);
+    document.addEventListener('mousemove', followCursor);
     startJitter();
     resetElementsPosition(true);
 
-    // Blokovat odkazy na začátku
+    // Blokujeme odkazy
     document.querySelectorAll('.interactable').forEach(a => {
         a.href = "#";
         a.onclick = (e) => e.preventDefault();
     });
+
+    // Správný obrázek ryby na startu
+    if (rybaIcon) rybaIcon.src = 'RYBA-BL.png';
 });
