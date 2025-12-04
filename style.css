@@ -79,14 +79,14 @@ html, body {
 }
 
 #mode-label {
-    font-size: 0.8vw;
+    font-size: 1vw;
     margin-right: 10px;
     font-weight: 900;
 }
 
 #mode-slider {
-    width: 40px;
-    height: 20px;
+    width: 80px;
+    height: 16px;
     background-color: #84FF00; /*84FF00*/
     border-radius: 10px;
     position: relative;
@@ -97,20 +97,20 @@ html, body {
     position: absolute;
     top: 3px;
     left: 3px;
-    width: 14px;
-    height: 14px;
-    background-color: var(--light-bg); /*tady*/
+    width: 40px;
+    height: 8px;
+    background-color: var(--dark-bg); /*tady*/
     border-radius: 50%;
     transition: transform 0.3s;
 }
 
 .light-mode #mode-slider {
-    background-color: var(--light-bg); /*tady*/
+    background-color: var(--dark-bg); /*tady*/
 }
 
 .light-mode #mode-slider::after {
     transform: translateX(20px);
-    background-color: #999;
+    background-color: var(--light-bg);
 }
 
 .dark-mode #mode-slider::after {
