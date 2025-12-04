@@ -42,7 +42,7 @@ function toggleMode() {
         stopJitter();
         resetElementsPosition(false);
 
-        // Povolit odkazy
+        // Povolit odkazyf
         document.querySelectorAll('.interactable').forEach(a => {
             a.href = a.getAttribute('data-url');
             a.onclick = null;
