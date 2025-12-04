@@ -8,7 +8,7 @@ const interactiveElements = document.querySelectorAll(
 
 const MAX_SHIFT = 600;
 const REACTION_DISTANCE = 800;
-const BOUND_LIMIT = 150;
+const BOUND_LIMIT = 150; // Limit jen pro ostatní prvky, ryba ho nemá
 const JITTER_MAX = 2;
 let jitterInterval;
 
@@ -33,7 +33,7 @@ function toggleMode() {
 
     if (isNowDark) {
         document.addEventListener('mousemove', moveElements);
-        document.addEventListener('mousemove', followCursor); // Přidáno sledování
+        document.addEventListener('mousemove', followCursor);
         startJitter();
         resetElementsPosition(true);
 
@@ -43,8 +43,8 @@ function toggleMode() {
         });
     } else {
         document.removeEventListener('mousemove', moveElements);
-        document.removeEventListener('mousemove', followCursor); // Vypne sledování
-        rybaIcon.style.transform = rybaIcon.style.transform.replace(/rotate\([^)]*\)\s?/, '').trim() || 'translate(0,0)'; // Odstraní rotaci
+        document.removeEventListener('mousemove', followCursor);
+        rybaIcon.style.transform = rybaIcon.style.transform.replace(/rotate\([^)]*\)\s?/, '').trim() || 'translate(0,0)';
         stopJitter();
         resetElementsPosition(false);
 
@@ -55,7 +55,7 @@ function toggleMode() {
     }
 }
 
-// Nová funkce: Ryba agresivně sleduje cursor (otáčí se k myši)
+// Sledování cursora (otáčení ryby)
 function followCursor(e) {
     if (!body.classList.contains('dark-mode') || !rybaIcon) return;
 
@@ -65,14 +65,14 @@ function followCursor(e) {
 
     const dx = e.clientX - rybaX;
     const dy = e.clientY - rybaY;
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90; // +90 protože ryba směřuje nahoru (přizpůsob podle orientace obrázku)
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90; // Uprav +90 podle orientace ryby
 
-    // Aplikujeme rotaci navíc k existující transformaci (utíkání + jitter)
-    const currentTransform = rybaIcon.style.transform;
+    const currentTransform = rybaIcon.style.transform || '';
     const newTransform = currentTransform.replace(/rotate\([^)]*\)/, '') + ` rotate(${angle}deg)`;
     rybaIcon.style.transform = newTransform.trim();
 }
 
+// Utíkání – ryba bez limitu, ostatní s limitem
 function moveElements(e) {
     if (body.classList.contains('dark-mode')) {
         interactiveElements.forEach(element => {
@@ -91,8 +91,11 @@ function moveElements(e) {
                 let targetTranslateX = (dx / distance) * -MAX_SHIFT * factor;
                 let targetTranslateY = (dy / distance) * -MAX_SHIFT * factor;
 
-                targetTranslateX = Math.max(-BOUND_LIMIT, Math.min(BOUND_LIMIT, targetTranslateX));
-                targetTranslateY = Math.max(-BOUND_LIMIT, Math.min(BOUND_LIMIT, targetTranslateY));
+                // Bez omezení pro rybu (může jezdit přes všechno)
+                if (element.id !== 'ryba-icon') {
+                    targetTranslateX = Math.max(-BOUND_LIMIT, Math.min(BOUND_LIMIT, targetTranslateX));
+                    targetTranslateY = Math.max(-BOUND_LIMIT, Math.min(BOUND_LIMIT, targetTranslateY));
+                }
 
                 element.dataset.baseX = targetTranslateX.toFixed(2);
                 element.dataset.baseY = targetTranslateY.toFixed(2);
@@ -101,6 +104,7 @@ function moveElements(e) {
     }
 }
 
+// Chvění – zachovává rotaci pro rybu, opraveno proti glitchům
 function startJitter() {
     if (jitterInterval) clearInterval(jitterInterval);
 
@@ -113,7 +117,7 @@ function startJitter() {
 
             let transform = `translate(${baseX + jitterX}px, ${baseY + jitterY}px)`;
 
-            // Pro rybu zachová rotaci (pokud existuje)
+            // Zachování rotace pro rybu (anti-glitch)
             if (element.id === 'ryba-icon') {
                 const currentRotate = element.style.transform.match(/rotate\([^)]*\)/);
                 if (currentRotate) transform += ' ' + currentRotate[0];
@@ -141,20 +145,17 @@ function resetElementsPosition(initialize) {
     });
 }
 
-// Inicializace při načtení
+// Inicializace
 document.addEventListener('DOMContentLoaded', () => {
-    // Nastartujeme chaos (tmavý režim)
     document.addEventListener('mousemove', moveElements);
     document.addEventListener('mousemove', followCursor);
     startJitter();
     resetElementsPosition(true);
 
-    // Blokujeme odkazy
     document.querySelectorAll('.interactable').forEach(a => {
         a.href = "#";
         a.onclick = (e) => e.preventDefault();
     });
 
-    // Správný obrázek ryby na startu
     if (rybaIcon) rybaIcon.src = 'RYBA-BL.png';
 });
