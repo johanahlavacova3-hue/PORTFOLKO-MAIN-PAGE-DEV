@@ -100,7 +100,7 @@ html, body {
     width: 40px;
     height: 8px;
     background-color: var(--dark-bg); /*tady*/
-    border-radius: 50%;
+    border-radius: 33px;
     transition: transform 0.3s;
 }
 
@@ -168,21 +168,29 @@ html, body {
     color: var(--secondary-text-dark);
 }
 
-/* Hry ikona */
+/* Hry ikona - nyní obrázek ryby */
 .game-icon {
-    width: 3vw;
-    height: 3vw;
+    width: 6vw;   /* Upprav podle velikosti tvých obrázků - původně 3vw, ryba může být širší */
+    height: auto; /* Zachová poměr stran */
     position: absolute;
     bottom: 0;
     left: 0;
-    clip-path: polygon(0% 0%, 100% 0%, 100% 80%, 80% 80%, 80% 100%, 0% 100%);
-    background-color: var(--light-text);
+    object-fit: contain; /* Zajistí správné zobrazení bez deformace */
     transition: transform 0.05s ease-out;
+    opacity: 0.9; /* Volitelně - mírná průhlednost pro styl */
 }
 
-.light-mode .game-icon {
-    background-color: var(--dark-text);
+/* Tmavý režim - černé pozadí → ryba pro tmavý režim */
+.dark-mode .game-icon {
+    content: url('RYBA-BL.png');
 }
+
+/* Světlý režim - bílé pozadí → ryba pro světlý režim */
+.light-mode .game-icon {
+    content: url('RXBA-WH.png');
+}
+
+/* Odstranění starých pravidel pro background a clip-path - už nejsou potřeba */
 
 /* Interaktivní prvky */
 .interactable {
