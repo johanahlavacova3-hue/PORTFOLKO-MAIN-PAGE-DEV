@@ -8,20 +8,21 @@ const interactiveElements = document.querySelectorAll(
 
 const MAX_SHIFT = 600;
 const REACTION_DISTANCE = 800;
-const MIN_DISTANCE = 40;  // Minimální vzdálenost od kurzoru (ryba se nesmí přiblížit blíž)
-const BOUND_LIMIT = 150; // Limit pro ostatní prvky, ryba nemá
+const MIN_DISTANCE_RYBA = 50;  // Minimální odstup ryby od kurzoru (~50px pro jistotu, můžeš změnit na 40)
+const BOUND_LIMIT = 150;
 const JITTER_MAX = 2;
 let jitterInterval;
 
-// Pomocná funkce: aplikuje transform (translate + rotate) pro rybu
-function applyRybaTransform(translateX, translateY, angle) {
-    if (!rybaIcon) return;
-    rybaIcon.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${angle}deg)`;
+// Aplikuje transform pro rybu (translate + rotate)
+function applyRybaTransform(x, y, angle) {
+    if (rybaIcon) {
+        rybaIcon.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+    }
 }
 
-// Pomocná funkce: aplikuje transform pro ostatní prvky
-function applyNormalTransform(element, translateX, translateY) {
-    element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+// Aplikuje transform pro ostatní prvky
+function applyNormalTransform(element, x, y) {
+    element.style.transform = `translate(${x}px, ${y}px)`;
 }
 
 function toggleMode() {
@@ -71,30 +72,29 @@ function moveElements(e) {
         const baseX = parseFloat(element.dataset.baseX) || 0;
         const baseY = parseFloat(element.dataset.baseY) || 0;
 
-        const centerX = rect.left + rect.width / 2 - baseX;
-        const centerY = rect.top + rect.height / 2 - baseY;
+        const centerX = rect.left + rect.width / 2 + baseX;  // Opravený výpočet středu s aktuálním posunem
+        const centerY = rect.top + rect.height / 2 + baseY;
 
         let dx = e.clientX - centerX;
         let dy = e.clientY - centerY;
         let distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < REACTION_DISTANCE) {
-            const factor = 1 - (distance / REACTION_DISTANCE);
+        if (distance < REACTION_DISTANCE && distance > 0) {
+            let factor = 1 - (distance / REACTION_DISTANCE);
             let targetX = (dx / distance) * -MAX_SHIFT * factor;
             let targetY = (dy / distance) * -MAX_SHIFT * factor;
 
-            // Speciální pravidlo pro rybu: minimální vzdálenost 40px
             if (element.id === 'ryba-icon') {
-                const desiredDistance = distance + MAX_SHIFT * factor; // přibližná vzdálenost po posunu
-                if (desiredDistance < MIN_DISTANCE) {
-                    // Posuneme rybu dál, aby byla minimálně 40px od kurzoru
-                    const extra = MIN_DISTANCE - desiredDistance;
-                    targetX = (dx / distance) * - (MAX_SHIFT * factor + extra);
-                    targetY = (dy / distance) * - (MAX_SHIFT * factor + extra);
+                // Minimální odstup pro rybu
+                const projectedDistance = distance - MAX_SHIFT * factor;
+                if (projectedDistance < MIN_DISTANCE_RYBA) {
+                    const extraPush = MIN_DISTANCE_RYBA - projectedDistance;
+                    targetX -= (dx / distance) * extraPush;
+                    targetY -= (dy / distance) * extraPush;
                 }
 
-                // Rotace ryby (sledování kurzoru)
-                const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90; // uprav +90 podle orientace ryby
+                // Otáčení ryby za cursorem
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90; // Uprav +90 podle orientace ryby v obrázku
                 applyRybaTransform(targetX, targetY, angle);
             } else {
                 // Ostatní prvky s limitem
@@ -103,7 +103,7 @@ function moveElements(e) {
                 applyNormalTransform(element, targetX, targetY);
             }
 
-            // Uložíme novou základní pozici
+            // Uložení nové základní pozice
             element.dataset.baseX = targetX.toFixed(2);
             element.dataset.baseY = targetY.toFixed(2);
         }
@@ -121,15 +121,16 @@ function startJitter() {
             const jitterY = (Math.random() - 0.5) * JITTER_MAX * 2;
 
             if (element.id === 'ryba-icon') {
-                // Pro rybu zachováme rotaci
-                const currentRotate = element.style.transform.match(/rotate\([^)]*\)/);
-                const rotatePart = currentRotate ? currentRotate[0] : 'rotate(0deg)';
-                applyRybaTransform(baseX + jitterX, baseY + jitterY, parseFloat(rotatePart.match(/-?\d+\.?\d*/)[0]));
+                // Zachová aktuální rotaci
+                const currentTransform = element.style.transform || 'rotate(0deg)';
+                const currentAngle = currentTransform.match(/rotate\((-?\d+\.?\d*)deg\)/);
+                const angle = currentAngle ? parseFloat(currentAngle[1]) : 0;
+                applyRybaTransform(baseX + jitterX, baseY + jitterY, angle);
             } else {
                 applyNormalTransform(element, baseX + jitterX, baseY + jitterY);
             }
         });
-    }, 100);
+    }, 80); // Mírně rychlejší pro plynulejší chvění
 }
 
 function stopJitter() {
@@ -141,9 +142,9 @@ function resetElementsPosition(initialize) {
     interactiveElements.forEach(element => {
         if (!initialize) {
             if (element.id === 'ryba-icon') {
-                element.style.transform = 'translate(0, 0) rotate(0deg)';
+                element.style.transform = 'translate(0px, 0px) rotate(0deg)';
             } else {
-                element.style.transform = 'translate(0, 0)';
+                element.style.transform = 'translate(0px, 0px)';
             }
         }
         element.dataset.baseX = 0;
