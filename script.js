@@ -1,6 +1,10 @@
 const body = document.body;
 const modeLabel = document.getElementById('mode-label');
-const mainTitles = document.querySelectorAll('.main-title');
+
+// KLÍČOVÁ ZMĚNA: Vybereme VŠECHNY prvky s data-base-x/y atributem
+const interactiveElements = document.querySelectorAll(
+    '#name, #description, .main-title, .sub-text, .game-icon'
+);
 
 // Zvýšené hodnoty pro silnější reakci
 const MAX_SHIFT = 600; // Maximální posun po uhnutí
@@ -28,16 +32,16 @@ function toggleMode() {
     // 3. Aktivace/Deaktivace chaosu
     if (isNewDarkMode) {
         // ZÁBAVNÝ REŽIM: Aktivuje uhýbání a chvění
-        document.addEventListener('mousemove', moveTitles);
+        document.addEventListener('mousemove', moveElements); // Změna názvu funkce
         startJitter();
         // Zajistíme, že data-base-x/y jsou inicializovány na 0 (pro Jitter)
-        resetTitlesPosition(true); 
+        resetElementsPosition(true); 
 
     } else {
         // NORMAL REŽIM: Deaktivuje uhýbání, chvění a resetuje pozice
-        document.removeEventListener('mousemove', moveTitles);
+        document.removeEventListener('mousemove', moveElements); // Změna názvu funkce
         stopJitter();
-        resetTitlesPosition(false); // Resetuje na původní pozici (0,0)
+        resetElementsPosition(false); // Resetuje na původní pozici (0,0)
     }
     
     // Nastavení klikatelnosti odkazů
@@ -53,24 +57,25 @@ function toggleMode() {
 }
 
 /**
- * Funkce, která posouvá texty pryč od kurzoru myši a ZACHOVÁVÁ POZICI.
+ * Funkce, která posouvá VŠECHNY interaktivní prvky pryč od kurzoru myši a ZACHOVÁVÁ POZICI.
  * @param {MouseEvent} e - Událost pohybu myši.
  */
-function moveTitles(e) {
+function moveElements(e) {
     if (body.classList.contains('dark-mode')) {
-        mainTitles.forEach(title => {
-            const rect = title.getBoundingClientRect();
+        interactiveElements.forEach(element => { // Iterujeme přes VŠECHNY prvky
+            const rect = element.getBoundingClientRect();
             
             // Původní pozice prvku (bez aktuálního posunu) - JS ji musí uchovávat
-            const titleBaseX = parseFloat(title.dataset.baseX) || 0;
-            const titleBaseY = parseFloat(title.dataset.baseY) || 0;
+            const elementBaseX = parseFloat(element.dataset.baseX) || 0;
+            const elementBaseY = parseFloat(element.dataset.baseY) || 0;
             
             // Střed prvku (relativní k původní pozici)
-            const titleCenterX = rect.left + rect.width / 2 - titleBaseX;
-            const titleCenterY = rect.top + rect.height / 2 - titleBaseY;
+            // Používáme rect.left/top, ale musíme odečíst uchovanou bázi, aby výpočet byl správný
+            const elementCenterX = rect.left + rect.width / 2 - elementBaseX;
+            const elementCenterY = rect.top + rect.height / 2 - elementBaseY;
 
-            const dx = e.clientX - titleCenterX;
-            const dy = e.clientY - titleCenterY;
+            const dx = e.clientX - elementCenterX;
+            const dy = e.clientY - elementCenterY;
 
             const distance = Math.sqrt(dx * dx + dy * dy);
 
@@ -82,8 +87,8 @@ function moveTitles(e) {
                 const targetTranslateY = (dy / distance) * -MAX_SHIFT * factor;
 
                 // Uložíme novou pozici, kam prvek uteče, pokud je myš blízko
-                title.dataset.baseX = targetTranslateX.toFixed(2);
-                title.dataset.baseY = targetTranslateY.toFixed(2);
+                element.dataset.baseX = targetTranslateX.toFixed(2);
+                element.dataset.baseY = targetTranslateY.toFixed(2);
             }
             
             // Aplikace transformace (posun + jitter se aplikuje v jitterLoop)
@@ -92,28 +97,27 @@ function moveTitles(e) {
 }
 
 /**
- * Zapne neustálé, náhodné chvění (jitter).
+ * Zapne neustálé, náhodné chvění (jitter) pro VŠECHNY prvky.
  */
 function startJitter() {
-    // Zastavíme předchozí interval, pokud existuje
     if (jitterInterval) {
         clearInterval(jitterInterval);
     }
     
     jitterInterval = setInterval(() => {
-        mainTitles.forEach(title => {
+        interactiveElements.forEach(element => { // Iterujeme přes VŠECHNY prvky
             // Aktuální "uhnutá" pozice
-            const baseX = parseFloat(title.dataset.baseX) || 0;
-            const baseY = parseFloat(title.dataset.baseY) || 0;
+            const baseX = parseFloat(element.dataset.baseX) || 0;
+            const baseY = parseFloat(element.dataset.baseY) || 0;
             
             // Náhodný posun pro chvění
             const jitterX = (Math.random() - 0.5) * JITTER_MAX * 2;
             const jitterY = (Math.random() - 0.5) * JITTER_MAX * 2;
             
             // Aplikace transformace: Uchovaná pozice + náhodné chvění
-            title.style.transform = `translate(${baseX + jitterX}px, ${baseY + jitterY}px)`;
+            element.style.transform = `translate(${baseX + jitterX}px, ${baseY + jitterY}px)`;
         });
-    }, 100); // Rychlé, ale znatelné chvění každých 100ms
+    }, 100); // Rychlé chvění každých 100ms
 }
 
 /**
@@ -127,21 +131,20 @@ function stopJitter() {
 }
 
 /**
- * Resetuje pozici všech hlavních nadpisů (a jejich uložené pozice).
+ * Resetuje pozici všech prvků (a jejich uložené pozice).
  * @param {boolean} initialize - Pokud true, jen inicializuje pozici na (0,0).
  */
-function resetTitlesPosition(initialize) {
-    mainTitles.forEach(title => {
+function resetElementsPosition(initialize) {
+    interactiveElements.forEach(element => { // Iterujeme přes VŠECHNY prvky
         // Reset transformace pouze v light-mode
         if (!initialize) {
-            title.style.transform = 'translate(0, 0)';
+            element.style.transform = 'translate(0, 0)';
         }
         // Reset uložené pozice
-        title.dataset.baseX = 0;
-        title.dataset.baseY = 0;
+        element.dataset.baseX = 0;
+        element.dataset.baseY = 0;
     });
 }
 
-// Spuštění na začátku pro nastavení dark-mode a aktivaci chaosu.
-// První volání nastaví dark-mode a aktivuje moveTitles a startJitter.
+// Spuštění na začátku
 toggleMode();
