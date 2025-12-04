@@ -87,7 +87,7 @@ html, body {
 #mode-slider {
     width: 40px;
     height: 20px;
-    background-color: #333;
+    background-color: #84FF00; /*84FF00*/
     border-radius: 10px;
     position: relative;
 }
@@ -99,13 +99,13 @@ html, body {
     left: 3px;
     width: 14px;
     height: 14px;
-    background-color: var(--accent-color);
+    background-color: var(--light-bg); /*tady*/
     border-radius: 50%;
     transition: transform 0.3s;
 }
 
 .light-mode #mode-slider {
-    background-color: var(--secondary-text-light);
+    background-color: var(--light-bg); /*tady*/
 }
 
 .light-mode #mode-slider::after {
