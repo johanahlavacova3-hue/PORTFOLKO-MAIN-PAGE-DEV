@@ -1,45 +1,48 @@
 const body = document.body;
-const interactableElements = document.querySelectorAll('.dark-mode .interactable');
-const modeSwitcher = document.getElementById('mode-switcher');
 const modeLabel = document.getElementById('mode-label');
 const mainTitles = document.querySelectorAll('.main-title');
 
-// Maximální posun v pixelech, jak daleko se text posune od kurzoru
-const MAX_SHIFT = 60; 
+// Zvýšená hodnota: maximální posun (v pixelech)
+const MAX_SHIFT = 250; 
+// Zvýšená hodnota: vzdálenost v pixelech, ve které prvek začne reagovat
+const REACTION_DISTANCE = 300; 
 
 /**
- * Přepíná mezi tmavým ("ZÁBAVNÝ") a světlým ("NORMAL") režimem.
+ * Přepíná mezi tmavým ("ZÁBAVNÝ WILD") a světlým ("NORMAL") režimem.
  */
 function toggleMode() {
-    // 1. Přepnutí třídy na <body>
-    const isDarkMode = body.classList.toggle('dark-mode');
-    body.classList.toggle('light-mode', !isDarkMode);
+    const isDarkMode = body.classList.contains('dark-mode');
+    
+    // Tady probíhá přepnutí
+    body.classList.toggle('dark-mode', !isDarkMode);
+    body.classList.toggle('light-mode', isDarkMode);
+    
+    // V "WILD" režimu je třída wild-mode na body (pro Dark)
+    body.classList.toggle('wild-mode', !isDarkMode);
+
+    const isNewDarkMode = body.classList.contains('dark-mode');
 
     // 2. Aktualizace popisku přepínače
-    modeLabel.textContent = isDarkMode ? 'ZÁBAVNÝ REŽIM' : 'NORMAL REŽIM';
+    modeLabel.textContent = isNewDarkMode ? 'ZÁBAVNÝ REŽIM (WILD)' : 'NORMAL REŽIM';
 
-    // 3. Aktualizace posluchačů událostí
-    if (isDarkMode) {
+    // 3. Aktivace/Deaktivace
+    if (isNewDarkMode) {
         // ZÁBAVNÝ REŽIM: Aktivuje uhýbání
         document.addEventListener('mousemove', moveTitles);
-        // Zabrání navigaci
-        mainTitles.forEach(title => title.style.pointerEvents = 'auto'); 
     } else {
         // NORMAL REŽIM: Deaktivuje uhýbání a resetuje pozice
         document.removeEventListener('mousemove', moveTitles);
         resetTitles();
-        // Povolí klikání na odkazy
-        mainTitles.forEach(title => title.style.pointerEvents = 'auto'); 
     }
     
-    // Změna odkazů na normální chování v light módu
+    // Nastavení klikatelnosti odkazů
     document.querySelectorAll('.interactable').forEach(a => {
-        if (!isDarkMode) {
-            // V light módu se použije skutečný odkaz
+        if (!isNewDarkMode) {
+            // Light mód: Normální odkaz a klikání
             a.href = a.getAttribute('data-url');
-            a.onclick = null; // Odebereme JavaScriptový handler
+            a.onclick = null;
         } else {
-            // V dark módu se klikání zabrání a použije se jen #
+            // Dark mód: Zabrání kliknutí
             a.href = "#";
             a.onclick = (e) => e.preventDefault();
         }
@@ -47,12 +50,12 @@ function toggleMode() {
 }
 
 /**
- * Funkce, která posouvá texty pryč od kurzoru myši (efekt "uhýbání").
- * Aplikuje se POUZE v tmavém (zábavném) režimu.
+ * Funkce, která posouvá texty hrůzou pryč od kurzoru myši.
+ * Zrychlený posun a velká reakční vzdálenost pro "WILD" efekt.
  * @param {MouseEvent} e - Událost pohybu myši.
  */
 function moveTitles(e) {
-    if (body.classList.contains('dark-mode')) {
+    if (body.classList.contains('wild-mode')) {
         mainTitles.forEach(title => {
             const rect = title.getBoundingClientRect();
             // Střed prvku
@@ -63,14 +66,16 @@ function moveTitles(e) {
             const dx = e.clientX - titleCenterX;
             const dy = e.clientY - titleCenterY;
 
-            // Vzdálenost
+            // Vzdálenost (Pythagoras)
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Výpočet posunu: čím blíže, tím větší posun (až do MAX_SHIFT)
-            if (distance < 200) { // Pouze pokud je kurzor v blízkosti 200px
-                const factor = 1 - (distance / 200); // 1.0 je max posun, 0.0 je žádný
+            // Pokud je kurzor v reakční zóně
+            if (distance < REACTION_DISTANCE) { 
+                // Výpočet faktoru: 1.0 = max posun, 0.0 = žádný posun
+                const factor = 1 - (distance / REACTION_DISTANCE);
                 
-                // Směr posunu je opačný než směr ke kurzoru
+                // Směr posunu je OPAČNÝ než směr ke kurzoru, text U-T-Í-K-Á
+                // Normalizované DX a DY (směr) * MAX_SHIFT (síla) * factor (blízkost)
                 const translateX = (dx / distance) * -MAX_SHIFT * factor;
                 const translateY = (dy / distance) * -MAX_SHIFT * factor;
 
@@ -93,5 +98,5 @@ function resetTitles() {
     });
 }
 
-// Spuštění na začátku pro nastavení dark-mode
+// Spuštění na začátku: Nastaví body jako dark-mode/wild-mode a aktivuje posluchače.
 toggleMode();
