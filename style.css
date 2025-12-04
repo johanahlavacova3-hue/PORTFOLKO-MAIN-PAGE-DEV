@@ -37,45 +37,49 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    z-index: 10;
 }
 
 #name {
-    font-size: 10vw;
+    font-size: 5vw;
     font-weight: 900;
     line-height: 1;
     position: relative;
+    transition: transform 0.05s ease-out, color 0.4s;
 }
 
 #description {
-    font-size: 3.5vw;
+    font-size: 1.5vw;
     font-weight: 900;
-    margin-top: 2vh;
+    margin-top: 10px;
     position: relative;
+    transition: transform 0.05s ease-out, color 0.4s;
 }
 
-/* Mobilní úpravy */
-@media (max-width: 768px) {
-    #name { font-size: 12vw; }
-    #description { font-size: 4vw; }
-    .main-title { font-size: 10vw; }
-    .sub-text { font-size: 3vw; }
-    .asterisk { font-size: 8vw; }
+.light-mode #name,
+.light-mode #description {
+    color: var(--dark-text);
 }
 
-/* Přepínač */
+.light-mode #description {
+    color: var(--secondary-text-light);
+}
+
+.dark-mode #description {
+    color: var(--light-text);
+}
+
+/* Přepínač režimu */
 #mode-switcher {
     position: absolute;
-    top: 2vh;
-    right: 5vw;
+    top: 0;
+    right: 0;
     display: flex;
     align-items: center;
     cursor: pointer;
-    z-index: 20;
 }
 
 #mode-label {
-    font-size: 3vw;
+    font-size: 1vw;
     margin-right: 10px;
     font-weight: 900;
 }
@@ -100,37 +104,40 @@ html, body {
     transition: transform 0.3s;
 }
 
-.light-mode #mode-slider { background-color: var(--dark-bg); }
-.light-mode #mode-slider::after { transform: translateX(20px); background-color: var(--light-bg); }
+.light-mode #mode-slider {
+    background-color: var(--dark-bg);
+}
 
-/* Layout */
+.light-mode #mode-slider::after {
+    transform: translateX(20px);
+    background-color: var(--light-bg);
+}
+
+.dark-mode #mode-slider::after {
+    transform: translateX(0);
+}
+
+/* Grid - PC */
 .content-grid {
     position: absolute;
-    top: 25vh;
+    top: 30%;
     left: 5vw;
     right: 5vw;
     bottom: 5vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    gap: 4vw;
-}
-
-.area {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    position: relative;
-    padding-bottom: 4vh;
+    gap: 0;
 }
 
 .main-title {
-    font-size: 8vw;
+    font-size: 7vw;
     font-weight: 900;
     line-height: 1;
-    margin-bottom: 1vh;
+    margin-bottom: 10px;
     user-select: none;
     position: relative;
+    transition: transform 0.05s ease-out, color 0.4s;
 }
 
 .main-title .asterisk {
@@ -138,51 +145,79 @@ html, body {
     opacity: 0.8;
 }
 
+.light-mode .main-title .asterisk {
+    color: var(--secondary-text-light);
+}
+
+.light-mode .main-title a {
+    color: var(--dark-text);
+}
+
 .sub-text {
-    font-size: 2.5vw;
+    font-size: 1.2vw;
     font-weight: 900;
     position: relative;
+    transition: transform 0.05s ease-out, color 0.4s;
+}
+
+.light-mode .sub-text {
+    color: var(--secondary-text-light);
+}
+
+.dark-mode .sub-text {
+    color: var(--secondary-text-dark);
 }
 
 /* Ryba */
 .game-icon {
-    width: 10vw;
+    width: 6vw;
     height: auto;
     position: absolute;
     bottom: 0;
     left: 0;
     object-fit: contain;
+    transition: none;
     opacity: 0.9;
     transform-origin: center;
 }
 
-/* Mobilní layout - vše pod sebou */
+/* Interaktivní prvky */
+.interactable {
+    text-decoration: none;
+    color: inherit;
+}
+
+.dark-mode .main-title a {
+    cursor: default;
+    pointer-events: none;
+}
+
+.light-mode .main-title a {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* MOBILNÍ REŽIM */
 @media (max-width: 768px) {
+    #name { font-size: 11vw; }
+    #description { font-size: 4vw; }
+    .main-title { font-size: 10vw; }
+    .sub-text { font-size: 3vw; }
+    #mode-label { font-size: 3.5vw; }
+
     .content-grid {
         grid-template-columns: 1fr;
         grid-template-rows: repeat(4, auto);
-        top: 30vh;
-        gap: 8vh;
+        top: 28vh;
+        gap: 10vh;
+        justify-items: center;
     }
+
     .area {
-        justify-content: center;
         text-align: center;
-        padding: 0;
     }
+
     .game-icon {
         display: none; /* Ryba skrytá na mobilu */
     }
 }
-
-/* Barvy */
-.light-mode #name, .light-mode #description { color: var(--dark-text); }
-.light-mode #description { color: var(--secondary-text-light); }
-.dark-mode #description { color: var(--light-text); }
-.light-mode .main-title .asterisk { color: var(--secondary-text-light); }
-.light-mode .main-title a { color: var(--dark-text); }
-.light-mode .sub-text { color: var(--secondary-text-light); }
-.dark-mode .sub-text { color: var(--secondary-text-dark); }
-
-.interactable { text-decoration: none; color: inherit; }
-.dark-mode .main-title a { pointer-events: none; }
-.light-mode .main-title a { pointer-events: auto; cursor: pointer; }
