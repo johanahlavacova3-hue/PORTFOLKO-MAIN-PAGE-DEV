@@ -192,6 +192,15 @@ html, body {
     pointer-events: none;
 }
 
+/* --- ZAČÁTEK ÚPRAVY PRO MOBILNÍ REŽIM --- */
+@media (max-width: 768px) {
+    .dark-mode .main-title a {
+        pointer-events: auto; /* Zde povolujeme klikání pro mobil */
+        cursor: pointer;
+    }
+}
+/* --- KONEC ÚPRAVY --- */
+
 .light-mode .main-title a {
     cursor: pointer;
     pointer-events: auto;
