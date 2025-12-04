@@ -1,7 +1,7 @@
 const body = document.body;
 const modeLabel = document.getElementById('mode-label');
 
-// KLÍČOVÁ ZMĚNA: VŠECHNY prvky, včetně .sub-text
+// KLÍČOVÁ ZMĚNAa: VŠECHNY prvky, včetně .sub-text
 const interactiveElements = document.querySelectorAll(
     '#name, #description, .main-title, .sub-text, .game-icon'
 );
