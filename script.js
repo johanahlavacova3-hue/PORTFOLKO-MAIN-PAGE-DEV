@@ -3,9 +3,9 @@ const modeLabel = document.getElementById('mode-label');
 const mainTitles = document.querySelectorAll('.main-title');
 
 // Zvýšená hodnota: maximální posun (v pixelech)
-const MAX_SHIFT = 250; 
+const MAX_SHIFT = 550; 
 // Zvýšená hodnota: vzdálenost v pixelech, ve které prvek začne reagovat
-const REACTION_DISTANCE = 300; 
+const REACTION_DISTANCE = 700; 
 
 /**
  * Přepíná mezi tmavým ("ZÁBAVNÝ WILD") a světlým ("NORMAL") režimem.
@@ -23,7 +23,7 @@ function toggleMode() {
     const isNewDarkMode = body.classList.contains('dark-mode');
 
     // 2. Aktualizace popisku přepínače
-    modeLabel.textContent = isNewDarkMode ? 'ZÁBAVNÝ REŽIM (WILD)' : 'NORMAL REŽIM';
+    modeLabel.textContent = isNewDarkMode ? 'ZÁBAVNÝ REŽIM ' : 'ZÁBAVNÝ REŽIM';
 
     // 3. Aktivace/Deaktivace
     if (isNewDarkMode) {
