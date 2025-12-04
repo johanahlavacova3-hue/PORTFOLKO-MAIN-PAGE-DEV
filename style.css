@@ -1,11 +1,11 @@
 :root {
-    --light-bg: #FFFFFF;
-    --dark-bg: #000000;
-    --dark-text: #000000;
-    --light-text: #FFFFFF;
-    --secondary-text-light: #CCCCCC;
-    --secondary-text-dark: #333333;
-    --accent-color: #55FF55; 
+    --light-bg: #F7F7F7;
+    --dark-bg: #181818;
+    --dark-text: #181818;
+    --light-text: #F7F7F7;
+    --secondary-text-light: #CBCBCB;
+    --secondary-text-dark: #7A7A7A;
+    --accent-color: #84FF00; 
 }
 
 /* --- Základní styly a reset --- */
