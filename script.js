@@ -1,18 +1,22 @@
 const body = document.body;
 const modeLabel = document.getElementById('mode-label');
 
-// KLÍČOVÁ ZMĚNA: Vybereme VŠECHNY prvky s data-base-x/y atributem
+// KLÍČOVÁ ZMĚNA: VŠECHNY prvky, včetně .sub-text
 const interactiveElements = document.querySelectorAll(
     '#name, #description, .main-title, .sub-text, .game-icon'
 );
 
-// Zvýšené hodnoty pro silnější reakci
-const MAX_SHIFT = 600; // Maximální posun po uhnutí
-const REACTION_DISTANCE = 800; // Vzdálenost, ve které prvek začne reagovat
+// Maximální posun po uhnutí (relativně k původní pozici)
+const MAX_SHIFT = 600; 
+// Vzdálenost, ve které prvek začne reagovat
+const REACTION_DISTANCE = 800; 
+
+// NOVÉ OMEZENÍ: Jak daleko se prvek smí posunout od původního středu (v px)
+const BOUND_LIMIT = 150; 
 
 // Nastavení pro náhodné chvění
 const JITTER_MAX = 2; // Maximální náhodný posun v pixelech
-let jitterInterval; // Proměnná pro ukládání intervalu chvění
+let jitterInterval; 
 
 /**
  * Přepíná mezi tmavým (CHAOS) a světlým (NORMAL) režimem.
@@ -20,28 +24,22 @@ let jitterInterval; // Proměnná pro ukládání intervalu chvění
 function toggleMode() {
     const isDarkMode = body.classList.contains('dark-mode');
     
-    // Tady probíhá přepnutí
     body.classList.toggle('dark-mode', !isDarkMode);
     body.classList.toggle('light-mode', isDarkMode);
     
     const isNewDarkMode = body.classList.contains('dark-mode');
 
-    // 2. Aktualizace popisku přepínače
     modeLabel.textContent = isNewDarkMode ? 'ZÁBAVNÝ REŽIM (CHAOS)' : 'NORMAL REŽIM';
 
-    // 3. Aktivace/Deaktivace chaosu
     if (isNewDarkMode) {
-        // ZÁBAVNÝ REŽIM: Aktivuje uhýbání a chvění
-        document.addEventListener('mousemove', moveElements); // Změna názvu funkce
+        document.addEventListener('mousemove', moveElements); 
         startJitter();
-        // Zajistíme, že data-base-x/y jsou inicializovány na 0 (pro Jitter)
         resetElementsPosition(true); 
 
     } else {
-        // NORMAL REŽIM: Deaktivuje uhýbání, chvění a resetuje pozice
-        document.removeEventListener('mousemove', moveElements); // Změna názvu funkce
+        document.removeEventListener('mousemove', moveElements); 
         stopJitter();
-        resetElementsPosition(false); // Resetuje na původní pozici (0,0)
+        resetElementsPosition(false); 
     }
     
     // Nastavení klikatelnosti odkazů
@@ -57,20 +55,19 @@ function toggleMode() {
 }
 
 /**
- * Funkce, která posouvá VŠECHNY interaktivní prvky pryč od kurzoru myši a ZACHOVÁVÁ POZICI.
+ * Funkce, která posouvá VŠECHNY interaktivní prvky a OMEZUJE JEJICH POSUN.
  * @param {MouseEvent} e - Událost pohybu myši.
  */
 function moveElements(e) {
     if (body.classList.contains('dark-mode')) {
-        interactiveElements.forEach(element => { // Iterujeme přes VŠECHNY prvky
+        interactiveElements.forEach(element => { 
             const rect = element.getBoundingClientRect();
             
-            // Původní pozice prvku (bez aktuálního posunu) - JS ji musí uchovávat
+            // Původní pozice prvku (bez aktuálního posunu)
             const elementBaseX = parseFloat(element.dataset.baseX) || 0;
             const elementBaseY = parseFloat(element.dataset.baseY) || 0;
             
             // Střed prvku (relativní k původní pozici)
-            // Používáme rect.left/top, ale musíme odečíst uchovanou bázi, aby výpočet byl správný
             const elementCenterX = rect.left + rect.width / 2 - elementBaseX;
             const elementCenterY = rect.top + rect.height / 2 - elementBaseY;
 
@@ -83,15 +80,19 @@ function moveElements(e) {
                 const factor = 1 - (distance / REACTION_DISTANCE);
                 
                 // Cílový posun (posun UTÍKÁNÍ)
-                const targetTranslateX = (dx / distance) * -MAX_SHIFT * factor;
-                const targetTranslateY = (dy / distance) * -MAX_SHIFT * factor;
+                let targetTranslateX = (dx / distance) * -MAX_SHIFT * factor;
+                let targetTranslateY = (dy / distance) * -MAX_SHIFT * factor;
 
-                // Uložíme novou pozici, kam prvek uteče, pokud je myš blízko
+                // --- KLÍČOVÁ IMPLEMENTACE OMEZENÍ ---
+                targetTranslateX = Math.max(-BOUND_LIMIT, Math.min(BOUND_LIMIT, targetTranslateX));
+                targetTranslateY = Math.max(-BOUND_LIMIT, Math.min(BOUND_LIMIT, targetTranslateY));
+                
+                // Uložíme OMEZENOU pozici
                 element.dataset.baseX = targetTranslateX.toFixed(2);
                 element.dataset.baseY = targetTranslateY.toFixed(2);
             }
-            
-            // Aplikace transformace (posun + jitter se aplikuje v jitterLoop)
+            // POZNÁMKA: Pokud myš opustí zónu (distance > REACTION_DISTANCE), uložená pozice se NEVRACÍ na nulu. 
+            // Zůstane tam, kam prvek utekl naposledy, splňující požadavek.
         });
     }
 }
@@ -105,7 +106,7 @@ function startJitter() {
     }
     
     jitterInterval = setInterval(() => {
-        interactiveElements.forEach(element => { // Iterujeme přes VŠECHNY prvky
+        interactiveElements.forEach(element => { 
             // Aktuální "uhnutá" pozice
             const baseX = parseFloat(element.dataset.baseX) || 0;
             const baseY = parseFloat(element.dataset.baseY) || 0;
@@ -117,7 +118,7 @@ function startJitter() {
             // Aplikace transformace: Uchovaná pozice + náhodné chvění
             element.style.transform = `translate(${baseX + jitterX}px, ${baseY + jitterY}px)`;
         });
-    }, 100); // Rychlé chvění každých 100ms
+    }, 100); 
 }
 
 /**
@@ -132,15 +133,12 @@ function stopJitter() {
 
 /**
  * Resetuje pozici všech prvků (a jejich uložené pozice).
- * @param {boolean} initialize - Pokud true, jen inicializuje pozici na (0,0).
  */
 function resetElementsPosition(initialize) {
-    interactiveElements.forEach(element => { // Iterujeme přes VŠECHNY prvky
-        // Reset transformace pouze v light-mode
+    interactiveElements.forEach(element => { 
         if (!initialize) {
             element.style.transform = 'translate(0, 0)';
         }
-        // Reset uložené pozice
         element.dataset.baseX = 0;
         element.dataset.baseY = 0;
     });
