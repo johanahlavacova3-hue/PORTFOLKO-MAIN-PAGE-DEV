@@ -141,7 +141,7 @@ html, body {
 /* --- Styl textových prvků (WILD Transition) --- */
 .main-title {
     font-size: 7vw;
-    font-weight: 900;
+    font-weight: 1200;
     line-height: 1;
     margin-bottom: 10px;
     position: relative;
@@ -170,7 +170,7 @@ html, body {
 
 .sub-text {
     font-size: 1.2vw;
-    font-weight: 400;
+    font-weight: 1200;
     margin-left: 0;
 }
 
