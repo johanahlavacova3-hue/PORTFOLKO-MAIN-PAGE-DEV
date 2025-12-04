@@ -28,7 +28,7 @@ html, body {
     color: var(--dark-text);
 }
 
-/* Headjer */
+/* Header */
 .header-info {
     position: absolute;
     top: 5vh;
@@ -87,7 +87,7 @@ html, body {
 #mode-slider {
     width: 80px;
     height: 16px;
-    background-color: #84FF00; /*84FF00*/
+    background-color: #84FF00;
     border-radius: 10px;
     position: relative;
 }
@@ -99,13 +99,13 @@ html, body {
     left: 3px;
     width: 40px;
     height: 8px;
-    background-color: var(--dark-bg); /*tady*/
+    background-color: var(--dark-bg);
     border-radius: 33px;
     transition: transform 0.3s;
 }
 
 .light-mode #mode-slider {
-    background-color: var(--dark-bg); /*tady*/
+    background-color: var(--dark-bg);
 }
 
 .light-mode #mode-slider::after {
@@ -168,29 +168,18 @@ html, body {
     color: var(--secondary-text-dark);
 }
 
-/* Hry ikona - nyní obrázek ryby */
+/* Hry ikona - ryba */
 .game-icon {
-    width: 6vw;   /* Upprav podle velikosti tvých obrázků - původně 3vw, ryba může být širší */
-    height: auto; /* Zachová poměr stran */
+    width: 6vw; /* Uprav podle potřeby */
+    height: auto;
     position: absolute;
     bottom: 0;
     left: 0;
-    object-fit: contain; /* Zajistí správné zobrazení bez deformace */
-    transition: transform 0.05s ease-out;
-    opacity: 0.9; /* Volitelně - mírná průhlednost pro styl */
+    object-fit: contain;
+    transition: transform 0.05s ease-out; /* Pro utíkání + otáčení */
+    opacity: 0.9;
+    transform-origin: bottom left; /* Otočení kolem levého dolního rohu */
 }
-
-/* Tmavý režim - černé pozadí → ryba pro tmavý režim */
-.dark-mode .game-icon {
-    content: url('RYBA-BL.png');
-}
-
-/* Světlý režim - bílé pozadí → ryba pro světlý režim */
-.light-mode .game-icon {
-    content: url('RXBA-WH.png');
-}
-
-/* Odstranění starých pravidel pro background a clip-path - už nejsou potřeba */
 
 /* Interaktivní prvky */
 .interactable {
