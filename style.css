@@ -176,9 +176,9 @@ html, body {
     bottom: 0;
     left: 0;
     object-fit: contain;
-    transition: transform 0.05s ease-out; /* Pro utíkání + otáčení */
+    transition: none; /* Pro utíkání + otáčení */
     opacity: 0.9;
-    transform-origin: bottom left; /* Otočení kolem levého dolního rohu */
+    transform-origin: center; /* Otočení kolem levého dolního rohu */
 }
 
 /* Interaktivní prvky */
