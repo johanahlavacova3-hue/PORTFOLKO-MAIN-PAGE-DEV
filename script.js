@@ -16,9 +16,7 @@ let jitterInterval;
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 // Transform funkce
-function applyRybaTransform(x, y, angle
-
-) {
+function applyRybaTransform(x, y, angle) {
     if (rybaIcon) {
         rybaIcon.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
     }
@@ -56,10 +54,14 @@ function toggleMode() {
         }
         resetElementsPosition(true);
 
-        document.querySelectorAll('.interactable').forEach(a => {
-            a.href = "#";
-            a.onclick = e => e.preventDefault();
-        });
+        // ZAČÁTEK ÚPRAVY: Blokování odkazů pouze na PC
+        if (!isMobile) { 
+            document.querySelectorAll('.interactable').forEach(a => {
+                a.href = "#";
+                a.onclick = e => e.preventDefault();
+            });
+        }
+        // KONEC ÚPRAVY
     } else {
         if (isMobile) {
             document.removeEventListener('touchstart', touchHandler);
@@ -167,9 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         resetElementsPosition(true);
 
-        document.querySelectorAll('.interactable').forEach(a => {
-            a.href = "#";
-            a.onclick = e => e.preventDefault();
-        });
+        // ZAČÁTEK ÚPRAVY: Blokování odkazů pouze na PC
+        if (!isMobile) { 
+            document.querySelectorAll('.interactable').forEach(a => {
+                a.href = "#";
+                a.onclick = e => e.preventDefault();
+            });
+        }
+        // KONEC ÚPRAVY
     }
 });
